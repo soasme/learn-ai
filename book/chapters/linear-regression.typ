@@ -12,6 +12,18 @@ Old Faithful, in Yellowstone National Park, erupts regularly. Rangers and visito
 have noticed that longer eruptions tend to be followed by longer waits. We download
 272 recorded observations to find out exactly how strong that relationship is:
 
+```mermaid
+flowchart LR
+    geyser[Old Faithful] --> csv[faithful.csv]
+    csv --> xs[eruption durations]
+    csv --> ys[waiting times]
+    xs --> center[subtract mean]
+    center --> xs_c[centered xs]
+    xs_c --> train
+    ys --> train
+```
+
+
 ```python
 if not os.path.exists('faithful.csv'):
     urllib.request.urlretrieve(
@@ -49,6 +61,17 @@ After centering, `xs` has mean zero. The mean eruption duration is about 3.49 mi
 
 == The model
 
+```mermaid
+flowchart LR
+    x[eruption duration] --> predict
+    weight --> predict
+    bias --> predict
+    predict --> y_hat[predicted wait]
+    y_hat --> error[error vs actual]
+    error --> weight
+    error --> bias
+```
+
 The model is one line of arithmetic:
 
 ```python
@@ -63,19 +86,17 @@ by gradient descent.
 
 == Gradient descent
 
-We measure how wrong the model is with mean squared error:
+The loss is the average squared prediction error across all observations. We want to
+reduce it by adjusting `weight` and `bias`. For each data point, the error is:
 
-$ "loss" = 1/n sum_i ("predict"(w, b, x_i) - y_i)^2 $
+```python
+error = predict(weight, bias, x) - y
+```
 
-To reduce the loss we need its gradient with respect to each parameter. For a single
-point with `error = predict(w, b, x) − y`:
-
-$ (partial "loss") / (partial w) = "error" dot x $
-
-$ (partial "loss") / (partial b) = "error" $
-
-We sum these contributions across all 272 eruptions and subtract a scaled version
-from each parameter:
+If `error` is positive the prediction is too high; if negative, too low. The key
+insight is that `error * x` tells us how much `weight` is to blame, and `error`
+alone tells us how much `bias` is to blame. We accumulate those blame signals across
+all 272 eruptions and subtract a scaled version from each parameter:
 
 ```python
 for x, y in zip(xs, ys):
@@ -87,8 +108,8 @@ weight -= scale * weight_grad
 bias   -= scale * bias_grad
 ```
 
-`scale = 2 * lr / n` absorbs the constant from the MSE derivative and normalises
-for the number of data points. The learning rate `lr` controls step size.
+`scale = 2.0 * lr / n` bundles the learning rate and the batch size into one factor.
+The learning rate `lr` controls how far we move each step.
 
 == Training
 
@@ -103,20 +124,11 @@ step=150  loss=34.718    weight=10.730  bias=70.897
 step=200  loss=34.718    weight=10.730  bias=70.897
 ```
 
-By step 100 the parameters have stopped changing. The learned line is:
-
-$ "waiting" = 10.73 dot ("eruption" - 3.49) + 70.90 $
-
-Which expands to:
-
-$ "waiting" = 10.73 dot "eruption" + 33.47 $
-
-This matches what an ordinary least-squares solver would give. Gradient descent
-found the same answer through repeated nudges.
-
-The slope of 10.73 means: *each extra minute of eruption predicts about 11 more
-minutes of waiting*. The intercept of 33.47 is the baseline wait if the eruption
-lasted zero minutes (an extrapolation, but it anchors the line).
+By step 100 the parameters have stopped changing. The slope of 10.73 means each
+extra minute of eruption predicts about 11 more minutes of waiting. The bias of
+70.90 is the expected wait after an average-length eruption. This matches what a
+least-squares solver would give — gradient descent found the same answer through
+repeated nudges.
 
 == Inference
 
