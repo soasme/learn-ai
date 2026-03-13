@@ -4,8 +4,7 @@ TARGET_BIAS = -1.0
 
 def make_dataset() -> tuple[list[float], list[float]]:
     xs = [x / 10 for x in range(-20, 21)]
-    ys = [TARGET_WEIGHT * x + TARGET_BIAS + 0.15 * (i % 5 - 2) for i, x in enumerate(xs)]
-    return xs, ys
+    return xs, [TARGET_WEIGHT * x + TARGET_BIAS + 0.15 * (i % 5 - 2) for i, x in enumerate(xs)]
 
 
 def predict(weight: float, bias: float, x: float) -> float:
@@ -19,20 +18,20 @@ def train(
     count = len(xs)
     scale = 2.0 * lr / count
 
-    for step in range(steps):
-        loss = weight_grad = bias_grad = 0.0
+    for step in range(1, steps + 1):
+        weight_grad = bias_grad = 0.0
         for x, y in zip(xs, ys):
             error = predict(weight, bias, x) - y
-            loss += error * error
             weight_grad += error * x
             bias_grad += error
 
         weight -= scale * weight_grad
         bias -= scale * bias_grad
 
-        if step % 50 == 0 or step == steps - 1:
+        if step == 1 or step % 50 == 0 or step == steps:
+            loss = sum((predict(weight, bias, x) - y) ** 2 for x, y in zip(xs, ys)) / count
             print(
-                f"step={step:03d} loss={loss / count:.6f} "
+                f"step={step:03d} loss={loss:.6f} "
                 f"weight={weight:.3f} bias={bias:.3f}"
             )
 
