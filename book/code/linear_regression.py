@@ -1,14 +1,8 @@
 from __future__ import annotations
 
-from statistics import mean
-
-
 def make_dataset() -> tuple[list[float], list[float]]:
     xs = [value / 10 for value in range(-20, 21)]
-    ys = [
-        2.5 * x - 1.0 + 0.15 * ((index % 5) - 2)
-        for index, x in enumerate(xs)
-    ]
+    ys = [2.5 * x - 1.0 + 0.15 * ((index % 5) - 2) for index, x in enumerate(xs)]
     return xs, ys
 
 
@@ -19,21 +13,15 @@ def predict(weight: float, bias: float, x: float) -> float:
 def train(
     xs: list[float], ys: list[float], steps: int = 400, lr: float = 0.05
 ) -> tuple[float, float]:
-    weight = 0.0
-    bias = 0.0
+    weight = bias = 0.0
     count = len(xs)
+    scale = 2.0 * lr / count
 
     for step in range(steps):
-        predictions = [predict(weight, bias, x) for x in xs]
-        errors = [prediction - y for prediction, y in zip(predictions, ys)]
-        loss = mean(error * error for error in errors)
-
-        # For mean squared error, the gradients stay simple and readable.
-        weight_grad = 2.0 / count * sum(error * x for error, x in zip(errors, xs))
-        bias_grad = 2.0 / count * sum(errors)
-
-        weight -= lr * weight_grad
-        bias -= lr * bias_grad
+        errors = [predict(weight, bias, x) - y for x, y in zip(xs, ys)]
+        loss = sum(error * error for error in errors) / count
+        weight -= scale * sum(error * x for error, x in zip(errors, xs))
+        bias -= scale * sum(errors)
 
         if step % 100 == 0 or step == steps - 1:
             print(
