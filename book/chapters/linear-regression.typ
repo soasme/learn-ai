@@ -13,17 +13,6 @@ Old Faithful, in Yellowstone National Park, erupts regularly. Rangers and visito
 have noticed that longer eruptions tend to be followed by longer waits. We download
 272 recorded observations to find out exactly how strong that relationship is:
 
-#oxdraw("
-graph LR
-    geyser[Old Faithful] --> csv[faithful.csv]
-    csv --> xs[eruption durations]
-    csv --> ys[waiting times]
-    xs --> center[subtract mean]
-    center --> xs_c[centered xs]
-    xs_c --> train
-    ys --> train
-")
-
 ```python
 if not os.path.exists('faithful.csv'):
     urllib.request.urlretrieve(
@@ -65,17 +54,6 @@ does not move the average prediction at all, so `bias` can learn its own value
 independently. Convergence is much faster.
 
 == The model
-
-#oxdraw("
-graph LR
-    x[eruption duration] --> predict
-    weight --> predict
-    bias --> predict
-    predict --> y_hat[predicted wait]
-    y_hat --> error[error vs actual]
-    error --> weight
-    error --> bias
-")
 
 The model is one line of arithmetic:
 
@@ -133,6 +111,13 @@ squared error — squaring produces a factor of 2 in the derivative. The learnin
 instead of falling.
 
 == Training
+
+#oxdraw("
+graph LR
+    predict --> error[measure error]
+    error --> update[adjust params]
+    update --> predict
+")
 
 We run 200 steps. The loss starts large and falls to a stable floor:
 
