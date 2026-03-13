@@ -12,8 +12,8 @@ Old Faithful, in Yellowstone National Park, erupts regularly. Rangers and visito
 have noticed that longer eruptions tend to be followed by longer waits. We download
 272 recorded observations to find out exactly how strong that relationship is:
 
-```mermaid
-flowchart LR
+#oxdraw("
+graph LR
     geyser[Old Faithful] --> csv[faithful.csv]
     csv --> xs[eruption durations]
     csv --> ys[waiting times]
@@ -21,7 +21,7 @@ flowchart LR
     center --> xs_c[centered xs]
     xs_c --> train
     ys --> train
-```
+")
 
 
 ```python
@@ -61,8 +61,8 @@ After centering, `xs` has mean zero. The mean eruption duration is about 3.49 mi
 
 == The model
 
-```mermaid
-flowchart LR
+#oxdraw("
+graph LR
     x[eruption duration] --> predict
     weight --> predict
     bias --> predict
@@ -70,7 +70,7 @@ flowchart LR
     y_hat --> error[error vs actual]
     error --> weight
     error --> bias
-```
+")
 
 The model is one line of arithmetic:
 

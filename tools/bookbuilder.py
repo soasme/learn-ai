@@ -85,6 +85,8 @@ def run_chapter(chapter: Chapter) -> dict[str, object]:
 
 def render_book(manifest: Manifest) -> str:
     parts = [
+        '#import "@preview/oxdraw:0.1.0": *',
+        "",
         f"= {manifest.title}",
         manifest.subtitle,
         "",
