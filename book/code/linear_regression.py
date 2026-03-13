@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 TARGET_WEIGHT = 2.5
 TARGET_BIAS = -1.0
 

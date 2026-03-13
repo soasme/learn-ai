@@ -1,15 +1,18 @@
-Linear regression is the smallest supervised learning loop. This chapter builds a
-tiny dataset from a hidden line, measures mean squared error, and learns
-`weight` and `bias` with hand-written gradients.
+Linear regression is the smallest supervised learning loop that still shows the
+whole machine: data, model, loss, gradient descent, and inference. This chapter
+builds a tiny dataset from a hidden line and learns `weight` and `bias` with
+hand-written gradients.
 
 == What to watch
 
 - `make_dataset` adds a fixed noise pattern, so every run fits the same target.
-- `weight` and `bias` are the whole model.
+- `weight * x + bias` is the whole model.
 - `error = weight * x + bias - y` feeds both gradients.
 - `2 / n` turns the accumulated residuals into mean squared error gradients.
-- The logged loss and final predictions should settle near `weight = 2.5` and
-  `bias = -1.0`.
+- The learned line should settle near `2.5x - 1.0`.
+
+Because the gradients are explicit, you can see exactly what later chapters
+will hand over to backpropagation and autograd.
 
 == Suggested experiments
 
