@@ -1,6 +1,7 @@
-Linear regression is the smallest model that still shows the complete learning loop.
-We define data, make predictions, measure error, compute gradients, and update
-parameters — the same cycle that trains neural networks and transformers.
+Linear regression is the smallest model that still shows the complete learning loop:
+make a prediction, measure the error, nudge the parameters to reduce it, repeat.
+Every chapter in this book runs the same loop. What changes is what sits inside
+`predict` — a line here, a neural network later, a transformer at the end.
 
 This chapter predicts how long a visitor must wait for the next eruption of Old
 Faithful geyser, given how long the current eruption lasted. The model is a single
@@ -23,7 +24,6 @@ graph LR
     ys --> train
 ")
 
-
 ```python
 if not os.path.exists('faithful.csv'):
     urllib.request.urlretrieve(
@@ -45,19 +45,24 @@ num eruptions: 272
 ```
 
 Each row is one observation. `xs` holds eruption durations (1.6 – 5.1 minutes) and
-`ys` holds the wait until the next eruption (43 – 96 minutes). Eruption durations
-cluster around two modes: short eruptions (~2 min) and long ones (~4.5 min), which
-is the famous bimodal pattern of Old Faithful.
+`ys` holds the wait until the next eruption (43 – 96 minutes).
 
-Before training we center the eruption durations around their mean. This decouples
-the weight and bias updates, so gradient descent converges in far fewer steps:
+Before training we subtract the mean from every `x`:
 
 ```python
 mu = sum(xs) / len(xs)
 xs = [x - mu for x in xs]
 ```
 
-After centering, `xs` has mean zero. The mean eruption duration is about 3.49 minutes.
+The mean eruption is about 3.49 minutes, so after centering a 3.49-minute eruption
+becomes 0.0, a 5.0-minute eruption becomes +1.51, and so on. The `ys` are left
+unchanged.
+
+Why center? When `x` is not centered, changing `weight` shifts every prediction,
+which then forces a compensating change in `bias`, which shifts predictions again.
+The two parameters chase each other. When `x` has mean zero, a change in `weight`
+does not move the average prediction at all, so `bias` can learn its own value
+independently. Convergence is much faster.
 
 == The model
 
@@ -79,42 +84,57 @@ def predict(weight, bias, x):
     return weight * x + bias
 ```
 
-`x` is the centered eruption duration. `weight` is the slope — how many extra
-minutes of waiting each extra minute of eruption buys. `bias` is the baseline
-waiting time for an average-length eruption. Both start at zero and are adjusted
-by gradient descent.
+`weight` is the slope — how many extra minutes of waiting each extra minute of
+eruption predicts. `bias` is the baseline — the expected wait when `x` is zero,
+which after centering means an average-length eruption. Both start at zero and are
+adjusted by gradient descent.
 
 == Gradient descent
 
-The loss is the average squared prediction error across all observations. We want to
-reduce it by adjusting `weight` and `bias`. For each data point, the error is:
+We measure how wrong the model is by squaring each prediction error and averaging:
+
+```python
+loss = sum((predict(weight, bias, x) - y) ** 2 for x, y in zip(xs, ys)) / n
+```
+
+Squaring does two things: it makes all errors positive (otherwise positive and
+negative errors cancel out and a terrible model can look fine), and it penalises
+large errors more than small ones.
+
+To reduce the loss we adjust `weight` and `bias` in the direction that makes it
+smaller. For each data point:
 
 ```python
 error = predict(weight, bias, x) - y
+weight_grad += error * x
+bias_grad   += error
 ```
 
-If `error` is positive the prediction is too high; if negative, too low. The key
-insight is that `error * x` tells us how much `weight` is to blame, and `error`
-alone tells us how much `bias` is to blame. We accumulate those blame signals across
-all 272 eruptions and subtract a scaled version from each parameter:
+`error` alone is the blame signal for `bias`: if the prediction is too high,
+`bias` is too high, so subtract from it.
+
+`error * x` is the blame signal for `weight`: weight's contribution to the prediction
+was `weight * x`, so if the prediction is wrong by `error`, weight is responsible
+for `error * x` of that. When `x` is large, weight had a big lever; when `x` is near
+zero, weight barely mattered and its gradient is small.
+
+After accumulating across all observations we subtract a scaled version from each
+parameter:
 
 ```python
-for x, y in zip(xs, ys):
-    error = predict(weight, bias, x) - y
-    weight_grad += error * x
-    bias_grad   += error
-
 weight -= scale * weight_grad
 bias   -= scale * bias_grad
 ```
 
-`scale = 2.0 * lr / n` bundles the learning rate and the batch size into one factor.
-The learning rate `lr` controls how far we move each step.
+`scale = 2.0 * lr / n`. The `n` normalises for dataset size so the step size does
+not depend on how many rows are in the CSV. The `2.0` comes from differentiating the
+squared error — squaring produces a factor of 2 in the derivative. The learning rate
+`lr` is a dial: too small and training is slow, too large and the loss explodes
+instead of falling.
 
 == Training
 
-We run 200 steps. The loss starts large (parameters are wrong) and falls to a
-stable floor — the irreducible noise in the data:
+We run 200 steps. The loss starts large and falls to a stable floor:
 
 ```
 step=001  loss=4219.250  weight=1.393  bias=7.090
@@ -124,16 +144,22 @@ step=150  loss=34.718    weight=10.730  bias=70.897
 step=200  loss=34.718    weight=10.730  bias=70.897
 ```
 
-By step 100 the parameters have stopped changing. The slope of 10.73 means each
-extra minute of eruption predicts about 11 more minutes of waiting. The bias of
-70.90 is the expected wait after an average-length eruption. This matches what a
-least-squares solver would give — gradient descent found the same answer through
-repeated nudges.
+By step 100 the parameters have stopped changing. When the gradients reach zero the
+parameters are at the bottom of the loss surface — there is no direction left to
+move that reduces the error. For a straight-line model this bottom is guaranteed to
+exist and to be unique: the loss surface is a smooth bowl with one lowest point.
+Gradient descent always finds it. That guarantee does not hold for neural networks,
+which is why later chapters need more careful treatment.
+
+The remaining loss of 34.7 is noise: the data does not fall perfectly on a line, so
+a line cannot fit it perfectly. It is not a sign of failure — it is the floor.
+
+The slope of 10.73 means each extra minute of eruption predicts about 11 more minutes
+of waiting. The bias of 70.90 is the expected wait after an average eruption.
 
 == Inference
 
-With training done we make predictions for new eruption durations — including values
-the model was never explicitly asked to fit:
+With training done the parameters are fixed and `predict` is called directly:
 
 ```
 inference — how long to wait after an eruption?
@@ -143,10 +169,10 @@ inference — how long to wait after an eruption?
   5.0 min eruption → 87.1 min wait
 ```
 
-A visitor who just watched a short 2-minute eruption can expect to wait about
-55 minutes. A visitor who watched the full 5-minute show should plan for 87 minutes.
-Rangers post these predictions at the geyser. The model we just trained is, roughly,
-what they use.
+A short 2-minute eruption predicts a ~55-minute wait. A long 5-minute eruption
+predicts an ~87-minute wait. These numbers match the published guidance at the park
+closely, which is not surprising: a linear fit of the same data is how that guidance
+is computed.
 
 == What the loop is doing
 
@@ -155,14 +181,16 @@ total prediction error, computed which direction to move each parameter, and mov
 After 200 repetitions, the parameters encoded the relationship between eruption
 length and waiting time — without being told what that relationship was.
 
-This is the heart of machine learning. Every chapter in this book extends or replaces
-one piece of this loop, but the loop itself does not change.
+Later chapters replace `predict` with a neural network or a transformer. The loop
+around it — forward pass, error, gradient, update — stays exactly the same.
 
 == Suggested experiments
 
-- *Print the first few rows* to see what the raw data looks like before centering.
-- *Remove the centering step* and watch how many steps it takes to converge —
-  or whether it converges at all with the same learning rate.
-- *Raise `lr` to 0.5* and observe the loss exploding instead of falling.
-- *Predict for an eruption of 1.0 minutes* — does the model's answer seem reasonable
-  given the data range?
+- *Remove the centering step* (`mu = 0`, skip the subtraction) and observe how many
+  steps it takes to converge with the same `lr`, or whether it converges at all.
+- *Raise `lr` to 0.5* and watch the loss explode on step one — this is what happens
+  when the step size overshoots the bottom of the bowl.
+- *Set `steps = 10`* and see how far from the final values the parameters land after
+  only ten updates.
+- *Predict for an eruption of 1.0 minutes* — the model will give an answer, but the
+  shortest eruption in the data is 1.6 minutes. Note what extrapolation does.
