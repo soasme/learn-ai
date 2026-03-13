@@ -1,0 +1,27 @@
+{
+  "name": "learn-ml",
+  "private": true,
+  "packageManager": "pnpm@10.30.2",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "ebook:check": "python3 -m tools.bookbuilder check",
+    "ebook:build": "python3 -m tools.bookbuilder build"
+  },
+  "dependencies": {
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "stripe": "^20.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.1.6",
+    "typescript": "^5.9.3"
+  }
+}

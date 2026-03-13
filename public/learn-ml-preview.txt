@@ -1,0 +1,15 @@
+Learn ML by Implementing It
+Preview build
+
+This repository currently ships the first sample chapter:
+
+- Linear Regression with Gradient Descent
+
+The full build pipeline validates the runnable Python chapter, assembles Typst
+source, and can compile a PDF when Typst is installed locally.
+
+Expected next steps:
+
+- add more chapters under book/chapters and book/code
+- point BOOK_DELIVERY_URL at the final compiled ebook asset
+- connect the Stripe webhook route in production

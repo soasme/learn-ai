@@ -1,0 +1,15 @@
+{
+  "title": "Learn ML by Implementing It",
+  "subtitle": "Minimal runnable machine learning chapters from scratch.",
+  "author": "Project draft",
+  "chapters": [
+    {
+      "slug": "linear-regression",
+      "title": "Linear Regression with Gradient Descent",
+      "summary": "A complete train-and-infer loop in one file, using only plain Python.",
+      "text": "book/chapters/linear-regression.typ",
+      "code": "book/code/linear_regression.py",
+      "entrypoint": "book/code/linear_regression.py"
+    }
+  ]
+}
