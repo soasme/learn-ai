@@ -4,9 +4,10 @@ squared error, and update the parameters with gradient descent.
 
 == What to watch
 
+- The dataset is just a list of `(x, y)` points sampled from a hidden line.
 - The model is only two numbers: `weight` and `bias`.
-- Training computes gradients directly from the mean squared error.
-- The inference path is the same equation used during training.
+- Training computes the mean squared error gradients directly, without helpers.
+- The logged loss now matches the parameters printed on the same line.
 
 == Why this chapter matters
 
@@ -26,4 +27,4 @@ without changing the reader's mental frame.
 
 - Increase the learning rate and watch training diverge.
 - Change the synthetic data generator to a different line.
-- Print the gradients each step and compare them with the loss curve.
+- Print `weight_grad` and `bias_grad` each step and compare them with the loss.
