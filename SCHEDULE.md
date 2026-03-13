@@ -77,6 +77,8 @@ When a reasonable iteration is complete:
 2.  **Rebase onto `main`**
     
 3.  **Delete the worktree** after the rebase succeeds
+
+4.  **Push to `main`**
     
 
 ----------
