@@ -15,14 +15,13 @@ def train(
     points: list[tuple[float, float]], steps: int = 400, lr: float = 0.05
 ) -> tuple[float, float]:
     weight = bias = 0.0
-    count = len(points)
-    scale = 2.0 / count
+    n = len(points)
+    scale = 2.0 / n
 
     for step in range(steps):
-        loss = weight_grad = bias_grad = 0.0
+        weight_grad = bias_grad = 0.0
         for x, y in points:
             error = weight * x + bias - y
-            loss += error * error
             weight_grad += error * x
             bias_grad += error
 
@@ -30,8 +29,9 @@ def train(
         bias -= lr * scale * bias_grad
 
         if step % 100 == 0 or step == steps - 1:
+            loss = sum((weight * x + bias - y) ** 2 for x, y in points) / n
             print(
-                f"step={step:03d} loss={loss / count:.6f} "
+                f"step={step:03d} loss={loss:.6f} "
                 f"weight={weight:.3f} bias={bias:.3f}"
             )
 
