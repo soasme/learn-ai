@@ -1,26 +1,15 @@
-Linear regression is the smallest supervised learning system that still reveals
-the full training loop. We make predictions with a line, measure error with mean
-squared error, and update the parameters with gradient descent.
+Linear regression is the smallest supervised learning loop that still contains
+the whole machine: data, model, loss, gradient descent, and inference. The
+model itself is only one line: `y = weight * x + bias`.
 
 == What to watch
 
-- The model is only two numbers: `weight` and `bias`.
-- Training computes gradients directly from the mean squared error.
-- The inference path is the same equation used during training.
+- `make_dataset` generates noisy points from a hidden line.
+- `predict` is the whole model: two parameters and one multiply-add.
+- `train` writes the mean squared error gradients out by hand.
 
-== Why this chapter matters
-
-This chapter sets the tone for the book. It is short enough to read in one
-sitting, but it already contains the full machine learning loop:
-
-- define a model
-- prepare data
-- compute loss
-- update parameters
-- run inference on unseen inputs
-
-Once this structure is clear, later chapters can swap in more interesting models
-without changing the reader's mental frame.
+Because the gradients are explicit, you can see exactly what later chapters
+will hand over to backpropagation and autograd.
 
 == Suggested experiments
 
