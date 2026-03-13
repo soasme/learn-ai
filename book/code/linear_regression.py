@@ -1,52 +1,60 @@
-TARGET_WEIGHT = 2.5
-TARGET_BIAS = -1.0
+import os
+import urllib.request
+
+# Download Old Faithful geyser observations (272 eruptions, Yellowstone 1990)
+if not os.path.exists('faithful.csv'):
+    urllib.request.urlretrieve(
+        'https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/faithful.csv',
+        'faithful.csv',
+    )
+
+xs, ys = [], []
+for line in open('faithful.csv').readlines()[1:]:
+    _, eruption, waiting = line.strip().split(',')
+    xs.append(float(eruption))   # duration in minutes
+    ys.append(float(waiting))    # wait until next eruption (minutes)
+
+print(f"num eruptions: {len(xs)}")
+
+# Center eruption durations around their mean so gradient descent converges faster
+mu = sum(xs) / len(xs)
+xs = [x - mu for x in xs]
 
 
-def make_dataset() -> tuple[list[float], list[float]]:
-    xs = [x / 10 for x in range(-20, 21)]
-    return xs, [TARGET_WEIGHT * x + TARGET_BIAS + 0.15 * (i % 5 - 2) for i, x in enumerate(xs)]
-
-
-def predict(weight: float, bias: float, x: float) -> float:
+def predict(weight, bias, x):
     return weight * x + bias
 
 
-def train(
-    xs: list[float], ys: list[float], steps: int = 200, lr: float = 0.05
-) -> tuple[float, float]:
+def train(xs, ys, steps=200, lr=0.05):
     weight = bias = 0.0
-    count = len(xs)
-    scale = 2.0 * lr / count
+    n = len(xs)
+    scale = 2.0 * lr / n
 
     for step in range(1, steps + 1):
         weight_grad = bias_grad = 0.0
         for x, y in zip(xs, ys):
             error = predict(weight, bias, x) - y
             weight_grad += error * x
-            bias_grad += error
+            bias_grad   += error
 
         weight -= scale * weight_grad
-        bias -= scale * bias_grad
+        bias   -= scale * bias_grad
 
         if step == 1 or step % 50 == 0 or step == steps:
-            loss = sum((predict(weight, bias, x) - y) ** 2 for x, y in zip(xs, ys)) / count
-            print(
-                f"step={step:03d} loss={loss:.6f} "
-                f"weight={weight:.3f} bias={bias:.3f}"
-            )
+            loss = sum((predict(weight, bias, x) - y) ** 2 for x, y in zip(xs, ys)) / n
+            print(f"step={step:03d}  loss={loss:.3f}  weight={weight:.3f}  bias={bias:.3f}")
 
     return weight, bias
 
 
-def main() -> None:
-    xs, ys = make_dataset()
+def main():
     weight, bias = train(xs, ys)
 
-    print(f"\nlearned line: y = {weight:.3f}x {bias:+.3f}")
-    print(f"target  line: y = {TARGET_WEIGHT:.3f}x {TARGET_BIAS:+.3f}")
-    print("\ninference")
-    for x in (-1.5, 0.0, 1.5):
-        print(f"x={x:>4.1f} -> y={predict(weight, bias, x):.3f}")
+    print(f"\nlearned:  waiting = {weight:.2f} \u00d7 (eruption \u2212 {mu:.2f}) + {bias:.2f}")
+    print(f"\ninference \u2014 how long to wait after an eruption?")
+    for duration in (2.0, 3.0, 4.0, 5.0):
+        wait = predict(weight, bias, duration - mu)
+        print(f"  {duration:.1f} min eruption \u2192 {wait:.1f} min wait")
 
 
 if __name__ == "__main__":
