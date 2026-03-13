@@ -6,8 +6,8 @@ squared error, and update the parameters with gradient descent.
 
 - The dataset is just a list of `(x, y)` points sampled from a hidden line.
 - The model is only two numbers: `weight` and `bias`.
-- Training computes the mean squared error gradients directly, without helpers.
-- The logged loss now matches the parameters printed on the same line.
+- Training makes one pass over the data to accumulate loss and gradients.
+- The logged loss, learned line, and target line give you a quick convergence check.
 
 == Why this chapter matters
 
@@ -22,6 +22,10 @@ sitting, but it already contains the full machine learning loop:
 
 Once this structure is clear, later chapters can swap in more interesting models
 without changing the reader's mental frame.
+
+The synthetic dataset is a noisy line, so the learned parameters should settle
+near `weight = 2.5` and `bias = -1.0`. That gives the reader an immediate check
+that gradient descent is moving in the right direction.
 
 == Suggested experiments
 

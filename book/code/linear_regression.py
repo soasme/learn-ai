@@ -19,9 +19,10 @@ def train(
     scale = 2.0 / count
 
     for step in range(steps):
-        weight_grad = bias_grad = 0.0
+        loss = weight_grad = bias_grad = 0.0
         for x, y in points:
             error = weight * x + bias - y
+            loss += error * error
             weight_grad += error * x
             bias_grad += error
 
@@ -29,9 +30,8 @@ def train(
         bias -= lr * scale * bias_grad
 
         if step % 100 == 0 or step == steps - 1:
-            loss = sum((weight * x + bias - y) ** 2 for x, y in points) / count
             print(
-                f"step={step:03d} loss={loss:.6f} "
+                f"step={step:03d} loss={loss / count:.6f} "
                 f"weight={weight:.3f} bias={bias:.3f}"
             )
 
