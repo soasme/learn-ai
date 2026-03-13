@@ -1,15 +1,9 @@
 from __future__ import annotations
 
-from statistics import mean
-
 
 def make_dataset() -> tuple[list[float], list[float]]:
-    xs = [value / 10 for value in range(-20, 21)]
-    ys = [
-        2.5 * x - 1.0 + 0.15 * ((index % 5) - 2)
-        for index, x in enumerate(xs)
-    ]
-    return xs, ys
+    xs = [x / 10 for x in range(-20, 21)]
+    return xs, [2.5 * x - 1.0 + 0.15 * ((i % 5) - 2) for i, x in enumerate(xs)]
 
 
 def predict(weight: float, bias: float, x: float) -> float:
@@ -19,23 +13,18 @@ def predict(weight: float, bias: float, x: float) -> float:
 def train(
     xs: list[float], ys: list[float], steps: int = 400, lr: float = 0.05
 ) -> tuple[float, float]:
-    weight = 0.0
-    bias = 0.0
+    weight = bias = 0.0
     count = len(xs)
+    scale = 2.0 / count
 
-    for step in range(steps):
-        predictions = [predict(weight, bias, x) for x in xs]
-        errors = [prediction - y for prediction, y in zip(predictions, ys)]
-        loss = mean(error * error for error in errors)
+    for step in range(1, steps + 1):
+        errors = [predict(weight, bias, x) - y for x, y in zip(xs, ys)]
+        weight -= lr * scale * sum(error * x for error, x in zip(errors, xs))
+        bias -= lr * scale * sum(errors)
 
-        # For mean squared error, the gradients stay simple and readable.
-        weight_grad = 2.0 / count * sum(error * x for error, x in zip(errors, xs))
-        bias_grad = 2.0 / count * sum(errors)
-
-        weight -= lr * weight_grad
-        bias -= lr * bias_grad
-
-        if step % 100 == 0 or step == steps - 1:
+        if step == 1 or step % 100 == 0 or step == steps:
+            errors = [predict(weight, bias, x) - y for x, y in zip(xs, ys)]
+            loss = sum(error * error for error in errors) / count
             print(
                 f"step={step:03d} loss={loss:.6f} "
                 f"weight={weight:.3f} bias={bias:.3f}"
@@ -50,8 +39,7 @@ def main() -> None:
 
     print("\ninference")
     for x in (-1.5, 0.0, 1.5):
-        y = predict(weight, bias, x)
-        print(f"x={x:>4.1f} -> y={y:.3f}")
+        print(f"x={x:>4.1f} -> y={predict(weight, bias, x):.3f}")
 
 
 if __name__ == "__main__":

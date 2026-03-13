@@ -1,29 +1,26 @@
-Linear regression is the smallest supervised learning system that still reveals
-the full training loop. We make predictions with a line, measure error with mean
-squared error, and update the parameters with gradient descent.
+Linear regression is the smallest model that still shows the whole learning
+loop. This file fits `y = weight * x + bias` to synthetic points, measures mean
+squared error, and updates the two parameters with hand-written gradients.
 
 == What to watch
 
-- The model is only two numbers: `weight` and `bias`.
-- Training computes gradients directly from the mean squared error.
-- The inference path is the same equation used during training.
+- `make_dataset` creates noisy points near one line, so we know what training
+  should recover.
+- `train` keeps the whole algorithm in view: predict, measure error, take one
+  gradient step.
+- `predict` is reused for both training and inference, so there is no hidden
+  second code path.
 
-== Why this chapter matters
+== Why gradient descent here
 
-This chapter sets the tone for the book. It is short enough to read in one
-sitting, but it already contains the full machine learning loop:
-
-- define a model
-- prepare data
-- compute loss
-- update parameters
-- run inference on unseen inputs
-
-Once this structure is clear, later chapters can swap in more interesting models
-without changing the reader's mental frame.
+Linear regression also has a closed-form solution, but gradient descent is the
+better teaching tool. The same loop survives when later chapters replace a line
+with a neural network or a transformer.
 
 == Suggested experiments
 
-- Increase the learning rate and watch training diverge.
-- Change the synthetic data generator to a different line.
-- Print the gradients each step and compare them with the loss curve.
+- Raise `lr` until the loss starts exploding.
+- Change the slope or intercept inside `make_dataset` and see what training
+  recovers.
+- Remove the noise term and notice how close the learned parameters get to the
+  exact line.
