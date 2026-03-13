@@ -39,7 +39,7 @@ All contributions must follow these rules:
 
 -   NO math, no latex. Use plain english for math introduction. It's for engineers who don't read math.
 
--   Each data showcase, model introduction should come with a simple graphviz diagram rendered using oxdraw. LR is preferred.
+-   Each data showcase, model introduction should come with a simple graphviz diagram rendered using oxdraw. LR is preferred. The diagram should highlight key flow and remove unimportant subtles.
 
 -   As a reader, critically examine each statement in the book.
 Ask yourself what questions a thoughtful reader would naturally raise after encountering that statement, and check whether those questions are answered later in the text. If an expected question is not addressed, improve the surrounding content by clarifying the idea, adding context, or introducing an explanation at the appropriate place.
