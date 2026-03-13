@@ -10,6 +10,14 @@
       "text": "book/chapters/linear-regression.typ",
       "code": "book/code/linear_regression.py",
       "entrypoint": "book/code/linear_regression.py"
+    },
+    {
+      "slug": "classification",
+      "title": "Classification with Logistic Regression",
+      "summary": "Learn a linear decision boundary and calibrated probabilities in one small Python file.",
+      "text": "book/chapters/classification.typ",
+      "code": "book/code/classification.py",
+      "entrypoint": "book/code/classification.py"
     }
   ]
 }

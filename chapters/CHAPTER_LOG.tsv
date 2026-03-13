@@ -6,3 +6,5 @@ chapter	status	loc	exit_code	description
 01_linear_regression	keep	34	0	rerun chapter 30 times and confirm stable exit_code 0 with consistent fit
 linear-regression	keep	52	0	make book/ the only chapter source and keep logged loss aligned with printed parameters
 linear-regression	keep	53	0	enhance chapter text with microgpt-style walkthrough: inline snippets, equations, expected output, reflection section
+classification	draft	89	0	add minimal logistic regression chapter with direct cross-entropy gradients
+classification	keep	90	0	make label noise explicit and validate the new chapter through direct run plus builder check
